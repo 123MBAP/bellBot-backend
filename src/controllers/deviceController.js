@@ -266,7 +266,7 @@ export const checkDeviceStatus = async (req, res) => {
     }
 
     // Check access
-    if (req.user.role !== 'admin' && 
+    if (req.user.role !== 'admin' && req.user.schoolId &&
         device.schoolId.toString() !== req.user.schoolId.toString()) {
       return res.status(403).json({ message: 'Not authorized to check this device' });
     }
