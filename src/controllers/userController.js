@@ -186,3 +186,34 @@ export const deleteUser = async (req, res) => {
     res.status(500).json({ message: 'Server error deleting user' });
   }
 };
+
+// @desc    Admin reset user password
+// @route   PUT /api/users/:id/reset-password
+// @access  Private/Admin
+export const adminResetPassword = async (req, res) => {
+  try {
+    const { newPassword } = req.body;
+
+    if (!newPassword) {
+      return res.status(400).json({ message: 'New password is required' });
+    }
+
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Update password (will be hashed by pre-save middleware)
+    user.password = newPassword;
+    await user.save();
+
+    res.json({ 
+      message: 'Password reset successfully',
+      newPassword
+    });
+  } catch (error) {
+    console.error('Admin reset password error:', error);
+    res.status(500).json({ message: 'Server error resetting password' });
+  }
+};

@@ -2,6 +2,8 @@ import School from '../models/School.js';
 import Device from '../models/Device.js';
 import User from '../models/User.js';
 import Timetable from '../models/Timetable.js';
+import PresetTimetable from '../models/PresetTimetable.js';
+import SpecialDayTimetable from '../models/SpecialDayTimetable.js';
 
 // @desc    Get all schools
 // @route   GET /api/schools
@@ -113,22 +115,30 @@ export const deleteSchool = async (req, res) => {
       return res.status(404).json({ message: 'School not found' });
     }
 
-    // Check if school has devices or users
-    const deviceCount = await Device.countDocuments({ schoolId: school._id });
-    const userCount = await User.countDocuments({ schoolId: school._id });
+    // Cascade delete: Remove all associated data
+    // Delete devices associated with this school
+    await Device.deleteMany({ schoolId: school._id });
+    
+    // Update users to remove school association (or delete them if needed)
+    // For now, we'll set their schoolId to null
+    await User.updateMany(
+      { schoolId: school._id },
+      { $set: { schoolId: null } }
+    );
 
-    if (deviceCount > 0 || userCount > 0) {
-      return res.status(400).json({ 
-        message: 'Cannot delete school with existing devices or users' 
-      });
-    }
-
-    // Delete timetable
+    
+    // Delete preset timetables
+    await PresetTimetable.deleteMany({ schoolId: school._id });
+    
+    // Delete special day timetables
+    await SpecialDayTimetable.deleteMany({ schoolId: school._id });
+    // Delete timetables
     await Timetable.deleteMany({ schoolId: school._id });
 
+    // Delete the school
     await school.deleteOne();
 
-    res.json({ message: 'School deleted successfully' });
+    res.json({ message: 'School and all associated data deleted successfully' });
   } catch (error) {
     console.error('Delete school error:', error);
     res.status(500).json({ message: 'Server error deleting school' });

@@ -4,7 +4,8 @@ import {
   getUserById,
   createUser,
   updateUser,
-  deleteUser
+  deleteUser,
+  adminResetPassword
 } from '../controllers/userController.js';
 import { protect, authorize } from '../middleware/auth.js';
 
@@ -21,5 +22,7 @@ router.route('/:id')
   .get(getUserById)
   .put(updateUser)
   .delete(deleteUser);
+
+router.put('/:id/reset-password', adminResetPassword);
 
 export default router;
