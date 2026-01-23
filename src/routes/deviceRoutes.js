@@ -10,7 +10,12 @@ import {
   ringDevice,
   checkDeviceStatus,
   updateDeviceTime,
-  toggleDeviceSilence
+  toggleDeviceSilence,
+  publishTimetable,
+  syncDeviceTime,
+  checkDeviceTime,
+  checkDeviceTimetable,
+  controlDeviceSilence
 } from '../controllers/deviceController.js';
 import { protect, authorize } from '../middleware/auth.js';
 import { mqttLimiter } from '../middleware/rateLimiter.js';
@@ -32,7 +37,16 @@ router.route('/:id')
 router.post('/:id/assign', authorize('admin'), assignDevice);
 router.delete('/:id/assign/:userId', authorize('admin'), unassignDevice);
 
-router.post('/:id/ring', mqttLimiter, ringDevice);
+// MQTT device control routes (Admin/Manager)
+router.post('/:id/ring', mqttLimiter, authorize('admin', 'manager'), ringDevice);
+router.post('/:id/publish-timetable', mqttLimiter, authorize('admin', 'manager'), publishTimetable);
+router.post('/:id/sync-time', mqttLimiter, authorize('admin', 'manager'), syncDeviceTime);
+router.post('/:id/silence', mqttLimiter, authorize('admin', 'manager'), controlDeviceSilence);
+router.get('/:id/status', authorize('admin', 'manager'), checkDeviceStatus);
+router.get('/:id/check-time', authorize('admin', 'manager'), checkDeviceTime);
+router.get('/:id/check-timetable', authorize('admin', 'manager'), checkDeviceTimetable);
+
+// Legacy routes
 router.post('/:id/status', checkDeviceStatus);
 router.post('/:id/update-time', authorize('admin'), updateDeviceTime);
 router.put('/:id/silence', authorize('admin', 'manager'), toggleDeviceSilence);

@@ -29,9 +29,30 @@ const deviceSchema = new mongoose.Schema({
     enum: ['online', 'offline'],
     default: 'offline'
   },
-  silenced: {
+  isOnline: {
     type: Boolean,
     default: false
+  },
+  isSilenced: {
+    type: Boolean,
+    default: false
+  },
+  currentTimetableId: {
+    type: String,
+    trim: true,
+    default: null
+  },
+  timeSynced: {
+    type: Boolean,
+    default: false
+  },
+  lastSeen: {
+    type: Date,
+    default: null
+  },
+  lastStatusCheck: {
+    type: Date,
+    default: null
   }
 }, {
   timestamps: true
