@@ -19,12 +19,13 @@ const router = express.Router();
 
 router.use(protect); // All routes require authentication
 
+// Routes accessible to all authenticated users (with role-based filtering in controller)
 router.route('/')
-  .get(getDevices)
+  .get(getDevices) // Controller filters by school for non-admin
   .post(authorize('admin'), createDevice);
 
 router.route('/:id')
-  .get(getDeviceById)
+  .get(getDeviceById) // Controller checks access for non-admin
   .put(authorize('admin'), updateDevice)
   .delete(authorize('admin'), deleteDevice);
 

@@ -144,3 +144,40 @@ export const deleteSchool = async (req, res) => {
     res.status(500).json({ message: 'Server error deleting school' });
   }
 };
+
+// @desc    Get my school (for managers and ringers)
+// @route   GET /api/schools/my/school
+// @access  Private/Manager/Ringer
+export const getMySchool = async (req, res) => {
+  try {
+    // Check if user has a school assigned
+    if (!req.user.schoolId) {
+      return res.status(404).json({ message: 'No school assigned' });
+    }
+
+    const school = await School.findById(req.user.schoolId)
+      .populate('deviceCount')
+      .populate('userCount');
+
+    if (!school) {
+      return res.status(404).json({ message: 'School not found' });
+    }
+
+    // Get devices for this school
+    const devices = await Device.find({ schoolId: school._id });
+    
+    // Get users for this school (managers can see users in their school)
+    const users = req.user.role === 'manager' 
+      ? await User.find({ schoolId: school._id }).select('-password')
+      : [];
+
+    res.json({
+      ...school.toJSON(),
+      devices,
+      users
+    });
+  } catch (error) {
+    console.error('Get my school error:', error);
+    res.status(500).json({ message: 'Server error fetching school' });
+  }
+};

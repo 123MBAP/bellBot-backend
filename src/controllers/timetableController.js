@@ -334,3 +334,54 @@ async function publishScheduleToDevices(schoolId) {
     console.error('Error publishing schedule to devices:', error);
   }
 }
+
+// @desc    Clear/reset timetable for school
+// @route   DELETE /api/timetables/school/:schoolId/clear
+// @access  Private (Admin/Manager)
+export const clearSchoolTimetable = async (req, res) => {
+  try {
+    const { schoolId } = req.params;
+
+    // Check access
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+      return res.status(403).json({ message: 'Not authorized to clear timetables' });
+    }
+
+    if (req.user.role === 'manager' && 
+        req.user.schoolId.toString() !== schoolId) {
+      return res.status(403).json({ message: 'Not authorized to clear this timetable' });
+    }
+
+    let timetable = await Timetable.findOne({ schoolId });
+
+    if (!timetable) {
+      return res.status(404).json({ message: 'Timetable not found' });
+    }
+
+    // Reset all days to empty schedules
+    const emptySchedule = {
+      presetId: null,
+      customTimes: []
+    };
+
+    timetable.weeklySchedule = {
+      Monday: emptySchedule,
+      Tuesday: emptySchedule,
+      Wednesday: emptySchedule,
+      Thursday: emptySchedule,
+      Friday: emptySchedule,
+      Saturday: emptySchedule,
+      Sunday: emptySchedule
+    };
+    timetable.updatedBy = req.user._id;
+    await timetable.save();
+
+    // Publish cleared schedule to devices via MQTT
+    await publishScheduleToDevices(schoolId);
+
+    res.json({ message: 'Timetable cleared successfully', timetable });
+  } catch (error) {
+    console.error('Clear timetable error:', error);
+    res.status(500).json({ message: 'Server error clearing timetable' });
+  }
+};

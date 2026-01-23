@@ -2,6 +2,7 @@ import express from 'express';
 import {
   getSchoolTimetable,
   updateDaySchedule,
+  clearSchoolTimetable,
   getPresetTimetables,
   createPresetTimetable,
   updatePresetTimetable,
@@ -18,6 +19,7 @@ router.use(protect); // All routes require authentication
 // School timetable routes
 router.get('/school/:schoolId', getSchoolTimetable);
 router.put('/school/:schoolId/day/:day', authorize('admin', 'manager'), updateDaySchedule);
+router.delete('/school/:schoolId/clear', authorize('admin', 'manager'), clearSchoolTimetable);
 
 // Preset timetable routes
 router.route('/presets')
