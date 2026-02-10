@@ -26,12 +26,7 @@ const seedDatabase = async () => {
     // Create schools
     console.log('\nCreating schools...');
     const schools = await School.create([
-      { name: 'Washington High School' },
-      { name: 'Lincoln Elementary' },
-      { name: 'Roosevelt Middle School' },
-      { name: 'Jefferson Academy' },
-      { name: 'Madison Prep' },
-      { name: 'Monroe Institute' }
+      { name: 'IPRC Kigali TSS' }
     ]);
     console.log(`✓ Created ${schools.length} schools`);
 
@@ -53,25 +48,11 @@ const seedDatabase = async () => {
         schoolId: schools[0]._id
       },
       {
-        email: 'manager2@bellbot.com',
-        password: 'manager123',
-        name: 'Mike Manager',
-        role: 'manager',
-        schoolId: schools[1]._id
-      },
-      {
         email: 'ringer1@bellbot.com',
         password: 'ringer123',
         name: 'Emily Ringer',
         role: 'ringer',
         schoolId: schools[0]._id
-      },
-      {
-        email: 'ringer2@bellbot.com',
-        password: 'ringer123',
-        name: 'Tom Ringer',
-        role: 'ringer',
-        schoolId: schools[1]._id
       }
     ]);
     console.log(`✓ Created ${users.length} users`);
@@ -79,14 +60,7 @@ const seedDatabase = async () => {
     // Create devices
     console.log('\nCreating devices...');
     const devices = await Device.create([
-      { serial: 'BELL1001', schoolId: schools[0]._id, location: 'Main Hall', model: 'Standard Bell', status: 'online' },
-      { serial: 'BELL1002', schoolId: schools[0]._id, location: 'Building A', model: 'Premium Bell', status: 'online' },
-      { serial: 'BELL1003', schoolId: schools[1]._id, location: 'East Wing', model: 'Standard Bell', status: 'offline' },
-      { serial: 'BELL1004', schoolId: schools[1]._id, location: 'West Wing', model: 'Standard Bell', status: 'online' },
-      { serial: 'BELL1005', schoolId: schools[2]._id, location: 'Main Building', model: 'Premium Bell', status: 'online' },
-      { serial: 'BELL1006', schoolId: schools[2]._id, location: 'Gymnasium', model: 'Standard Bell', status: 'online' },
-      { serial: 'BELL1007', schoolId: schools[3]._id, location: 'Main Entrance', model: 'Standard Bell', status: 'offline' },
-      { serial: 'BELL1008', schoolId: schools[3]._id, location: 'Library', model: 'Premium Bell', status: 'online' }
+      { serial: 'BELL1001', schoolId: schools[0]._id, location: 'Main Hall', model: 'Standard Bell', status: 'online' }
     ]);
     console.log(`✓ Created ${devices.length} devices`);
 
