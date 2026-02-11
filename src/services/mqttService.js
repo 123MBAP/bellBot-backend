@@ -22,7 +22,6 @@ class MQTTService {
   connect() {
     try {
       this.client = mqtt.connect(config.mqtt.brokerUrl, {
-        clientId: config.mqtt.clientId,
         clean: true,
         reconnectPeriod: 1000,
       });

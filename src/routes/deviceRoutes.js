@@ -37,12 +37,15 @@ router.route('/:id')
 router.post('/:id/assign', authorize('admin'), assignDevice);
 router.delete('/:id/assign/:userId', authorize('admin'), unassignDevice);
 
-// MQTT device control routes (Admin/Manager)
-router.post('/:id/ring', mqttLimiter, authorize('admin', 'manager'), ringDevice);
+// MQTT device control routes
+// Ringer role can access: ring, silence, status check
+router.post('/:id/ring', mqttLimiter, authorize('admin', 'manager', 'ringer'), ringDevice);
+router.post('/:id/silence', mqttLimiter, authorize('admin', 'manager', 'ringer'), controlDeviceSilence);
+router.get('/:id/status', authorize('admin', 'manager', 'ringer'), checkDeviceStatus);
+
+// Admin/Manager only routes
 router.post('/:id/publish-timetable', mqttLimiter, authorize('admin', 'manager'), publishTimetable);
 router.post('/:id/sync-time', mqttLimiter, authorize('admin', 'manager'), syncDeviceTime);
-router.post('/:id/silence', mqttLimiter, authorize('admin', 'manager'), controlDeviceSilence);
-router.get('/:id/status', authorize('admin', 'manager'), checkDeviceStatus);
 router.get('/:id/check-time', authorize('admin', 'manager'), checkDeviceTime);
 router.get('/:id/check-timetable', authorize('admin', 'manager'), checkDeviceTimetable);
 
