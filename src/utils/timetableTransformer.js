@@ -75,10 +75,10 @@ export async function transformTimetableForDevice(timetable, school) {
     // Sort times chronologically and remove duplicates
     times = [...new Set(times)].sort();
 
-    // Limit to 30 slots per day as per device specification
-    if (times.length > 30) {
-      console.warn(`Day ${dayName} has ${times.length} slots, truncating to 30`);
-      times = times.slice(0, 30);
+    // Limit to 45 slots per day as per device specification
+    if (times.length > 45) {
+      console.warn(`Day ${dayName} has ${times.length} slots, truncating to 45`);
+      times = times.slice(0, 45);
     }
 
     deviceTimetable.times[dayIndex] = times;
@@ -113,10 +113,10 @@ export function validateDeviceTimetable(deviceTimetable) {
     }
   }
 
-  // Check each day has max 30 slots
+  // Check each day has max 45 slots
   for (const [day, times] of Object.entries(deviceTimetable.times)) {
-    if (times.length > 30) {
-      errors.push(`Day ${day} has ${times.length} slots, max is 30`);
+    if (times.length > 45) {
+      errors.push(`Day ${day} has ${times.length} slots, max is 45`);
     }
 
     // Validate time format (HH:MM)
