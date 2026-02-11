@@ -474,7 +474,7 @@ export const checkDeviceTimetable = async (req, res) => {
 
 // @desc    Control device silence mode
 // @route   POST /api/devices/:id/silence
-// @access  Private (Admin/Manager)
+// @access  Private (Admin/Manager/Ringer)
 export const controlDeviceSilence = async (req, res) => {
   try {
     const { enable } = req.body; // true to enable silence, false to disable
@@ -485,11 +485,11 @@ export const controlDeviceSilence = async (req, res) => {
     }
 
     // Check access
-    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+    if (req.user.role !== 'admin' && req.user.role !== 'manager' && req.user.role !== 'ringer') {
       return res.status(403).json({ message: 'Not authorized' });
     }
 
-    if (req.user.role === 'manager' && 
+    if ((req.user.role === 'manager' || req.user.role === 'ringer') && 
         device.schoolId.toString() !== req.user.schoolId.toString()) {
       return res.status(403).json({ message: 'Not authorized to manage this device' });
     }
@@ -530,11 +530,11 @@ export const ringDevice = async (req, res) => {
     }
 
     // Check access
-    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+    if (req.user.role !== 'admin' && req.user.role !== 'manager' && req.user.role !== 'ringer') {
       return res.status(403).json({ message: 'Not authorized' });
     }
 
-    if (req.user.role === 'manager' && 
+    if ((req.user.role === 'manager' || req.user.role === 'ringer') && 
         device.schoolId.toString() !== req.user.schoolId.toString()) {
       return res.status(403).json({ message: 'Not authorized to manage this device' });
     }
@@ -558,7 +558,7 @@ export const ringDevice = async (req, res) => {
 
 // @desc    Check comprehensive device status
 // @route   GET /api/devices/:id/status
-// @access  Private (Admin/Manager)
+// @access  Private (Admin/Manager/Ringer)
 export const checkDeviceStatus = async (req, res) => {
   try {
     const device = await Device.findById(req.params.id);
@@ -568,11 +568,11 @@ export const checkDeviceStatus = async (req, res) => {
     }
 
     // Check access
-    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+    if (req.user.role !== 'admin' && req.user.role !== 'manager' && req.user.role !== 'ringer') {
       return res.status(403).json({ message: 'Not authorized' });
     }
 
-    if (req.user.role === 'manager' && 
+    if ((req.user.role === 'manager' || req.user.role === 'ringer') && 
         device.schoolId.toString() !== req.user.schoolId.toString()) {
       return res.status(403).json({ message: 'Not authorized to view this device' });
     }
