@@ -28,7 +28,7 @@ mqttService.connect();
 
 // Middleware
 app.use(cors({
-  origin: config.cors.allowedOrigins,
+  origin: '*', // Allow all origins - adjust in production
   credentials: true
 }));
 app.use(express.json());
