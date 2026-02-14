@@ -18,8 +18,10 @@ export const protect = async (req, res, next) => {
     // Verify token
     const decoded = jwt.verify(token, config.jwt.secret);
 
-    // Get user from token
-    req.user = await User.findById(decoded.id).select('-password');
+    // Get user from token with timeout
+    req.user = await User.findById(decoded.id)
+      .select('-password')
+      .maxTimeMS(10000); // 10 second query timeout
 
     if (!req.user) {
       return res.status(401).json({ message: 'Not authorized, user not found' });
@@ -28,6 +30,23 @@ export const protect = async (req, res, next) => {
     next();
   } catch (error) {
     console.error('Auth middleware error:', error);
+    
+    // Handle specific MongoDB errors
+    if (error.name === 'MongoNetworkTimeoutError' || error.name === 'MongoPoolClearedError') {
+      return res.status(503).json({ 
+        message: 'Database connection error. Please try again.',
+        error: 'SERVICE_UNAVAILABLE'
+      });
+    }
+    
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(401).json({ message: 'Invalid token' });
+    }
+    
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ message: 'Token has expired' });
+    }
+    
     return res.status(401).json({ message: 'Not authorized, token failed' });
   }
 };
