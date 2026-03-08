@@ -812,6 +812,68 @@ class MQTTService {
     }
   }
 
+  // Push timetables to every assigned device — called by the nightly cron job
+  async pushAllTimetables() {
+    console.log('[Cron] Starting nightly timetable push to all devices...');
+
+    try {
+      const { default: Timetable } = await import('../models/Timetable.js');
+      const { transformTimetableForDevice } = await import('../utils/timetableTransformer.js');
+
+      // Load every device that has a school assigned
+      const devices = await Device.find({ schoolId: { $exists: true, $ne: null } })
+        .populate('schoolId');
+
+      if (devices.length === 0) {
+        console.log('[Cron] No assigned devices found — nothing to push.');
+        return;
+      }
+
+      // Cache timetables per school to avoid duplicate DB reads
+      const timetableCache = new Map();
+      let pushed = 0;
+      let skipped = 0;
+
+      for (const device of devices) {
+        try {
+          const schoolId = device.schoolId._id.toString();
+
+          if (!timetableCache.has(schoolId)) {
+            const timetable = await Timetable.findOne({ schoolId: device.schoolId._id });
+            timetableCache.set(schoolId, timetable || null);
+          }
+
+          const timetable = timetableCache.get(schoolId);
+          if (!timetable) {
+            console.warn(`[Cron] No timetable for school ${device.schoolId.name} — skipping ${device.serial}`);
+            skipped++;
+            continue;
+          }
+
+          const deviceTimetable = await transformTimetableForDevice(timetable, device.schoolId);
+          const success = this.publishTimetableToDevice(device.serial, deviceTimetable);
+
+          if (success) {
+            await Device.findOneAndUpdate(
+              { serial: device.serial },
+              { currentTimetableId: deviceTimetable.id }
+            );
+            pushed++;
+          } else {
+            skipped++;
+          }
+        } catch (err) {
+          console.error(`[Cron] Error pushing timetable to ${device.serial}:`, err);
+          skipped++;
+        }
+      }
+
+      console.log(`[Cron] Nightly push complete — pushed: ${pushed}, skipped: ${skipped}`);
+    } catch (error) {
+      console.error('[Cron] Fatal error during nightly timetable push:', error);
+    }
+  }
+
   // Disconnect from broker
   disconnect() {
     if (this.client) {

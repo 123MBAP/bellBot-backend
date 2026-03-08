@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import connectDB from './config/database.js';
 import { config } from './config/env.js';
 import { mqttService } from './services/mqttService.js';
+import { startCronJobs } from './services/cronService.js';
 import { errorHandler, notFound } from './middleware/errorHandler.js';
 import { apiLimiter } from './middleware/rateLimiter.js';
 
@@ -25,6 +26,9 @@ connectDB();
 
 // Connect to MQTT broker
 mqttService.connect();
+
+// Start scheduled cron jobs
+startCronJobs();
 
 // Middleware
 app.use(cors({
