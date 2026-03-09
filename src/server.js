@@ -28,7 +28,17 @@ mqttService.connect();
 
 // Middleware
 app.use(cors({
-  origin: '*', // Allow all origins - adjust in production
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    const allowedOrigins = config.cors.allowedOrigins;
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error('The CORS policy for this site does not allow access from the specified Origin.'));
+    }
+  },
   credentials: true
 }));
 app.use(express.json());
@@ -39,7 +49,7 @@ app.use('/api/', apiLimiter);
 
 // Health check route
 app.get('/health', (req, res) => {
-  res.json({ 
+  res.json({
     status: 'OK',
     mongodb: 'connected',
     mqtt: mqttService.isConnected() ? 'connected' : 'disconnected',
