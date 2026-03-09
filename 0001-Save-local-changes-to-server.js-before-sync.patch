@@ -1,0 +1,44 @@
+From f693496b44465232768381757d5bea4417d7e722 Mon Sep 17 00:00:00 2001
+From: Patrick MBABAZI <mbabazipatrick2004@gmail.com>
+Date: Mon, 9 Mar 2026 15:42:27 +0200
+Subject: [PATCH] Save local changes to server.js before sync
+
+---
+ src/server.js | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
+
+diff --git a/src/server.js b/src/server.js
+index 2cf609a..0c90734 100644
+--- a/src/server.js
++++ b/src/server.js
+@@ -28,7 +28,17 @@ mqttService.connect();
+ 
+ // Middleware
+ app.use(cors({
+-  origin: '*', // Allow all origins - adjust in production
++  origin: function (origin, callback) {
++    // Allow requests with no origin (like mobile apps or curl requests)
++    if (!origin) return callback(null, true);
++
++    const allowedOrigins = config.cors.allowedOrigins;
++    if (allowedOrigins.includes(origin)) {
++      return callback(null, true);
++    } else {
++      return callback(new Error('The CORS policy for this site does not allow access from the specified Origin.'));
++    }
++  },
+   credentials: true
+ }));
+ app.use(express.json());
+@@ -39,7 +49,7 @@ app.use('/api/', apiLimiter);
+ 
+ // Health check route
+ app.get('/health', (req, res) => {
+-  res.json({ 
++  res.json({
+     status: 'OK',
+     mongodb: 'connected',
+     mqtt: mqttService.isConnected() ? 'connected' : 'disconnected',
+-- 
+2.52.0.windows.1
+
