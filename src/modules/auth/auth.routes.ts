@@ -12,3 +12,5 @@ const authController = new AuthController(authService);
 authRouter.post('/login', authController.login);
 authRouter.post('/register', authController.register);
 authRouter.post('/google', authController.google);
+authRouter.post('/forgot-password', authController.forgotPassword);
+authRouter.post('/reset-password', authController.resetPassword);

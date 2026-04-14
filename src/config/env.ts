@@ -30,6 +30,10 @@ export const env = {
     jwtSecret: requireEnv('JWT_SECRET'),
     corsOrigins: parseCorsOrigins(process.env.CORS_ORIGIN),
     googleClientId: process.env.GOOGLE_CLIENT_ID ?? '',
+    resend: {
+        apiKey: (process.env.RESEND_API_KEY ?? '').trim(),
+        from: (process.env.RESEND_FROM ?? '').trim(),
+    },
     cloudinary: {
         apiKey: requireEnv('CLOUDINARY_KEY'),
         apiSecret: requireEnv('CLOUDINARY_SECRET'),

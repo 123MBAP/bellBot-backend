@@ -7,6 +7,18 @@ export type CreateOrderInput = {
 };
 
 export class OrdersRepository {
+    async getById(orderId: string) {
+        return prisma.order.findUnique({
+            where: { id: orderId },
+        });
+    }
+
+    async getByIdForUser(orderId: string, userId: string) {
+        return prisma.order.findFirst({
+            where: { id: orderId, userId },
+        });
+    }
+
     async create(input: CreateOrderInput) {
         return prisma.order.create({
             data: {
@@ -21,6 +33,43 @@ export class OrdersRepository {
         return prisma.order.findMany({
             where: { userId },
             orderBy: { createdAt: 'desc' },
+        });
+    }
+
+    async listAllWithUser() {
+        return prisma.order.findMany({
+            orderBy: { createdAt: 'desc' },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        email: true,
+                        name: true,
+                        phone: true,
+                        role: true,
+                    },
+                },
+            },
+        });
+    }
+
+    async updateById(orderId: string, data: any) {
+        return prisma.order.update({
+            where: { id: orderId },
+            data,
+        });
+    }
+
+    async updateByIdForUser(orderId: string, userId: string, data: any) {
+        const result = await prisma.order.updateMany({
+            where: { id: orderId, userId },
+            data,
+        });
+        if (result.count === 0) {
+            return null;
+        }
+        return prisma.order.findFirst({
+            where: { id: orderId, userId },
         });
     }
 }

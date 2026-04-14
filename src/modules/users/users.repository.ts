@@ -14,6 +14,35 @@ export class UsersRepository {
         return prisma.user.findUnique({ where: { email } });
     }
 
+    async setPasswordResetCode(userId: string, input: { codeHash: string; expiresAt: Date; sentAt: Date }) {
+        return prisma.user.update({
+            where: { id: userId },
+            data: {
+                passwordResetCodeHash: input.codeHash,
+                passwordResetCodeExpiresAt: input.expiresAt,
+                passwordResetCodeSentAt: input.sentAt,
+            },
+        });
+    }
+
+    async clearPasswordResetCode(userId: string) {
+        return prisma.user.update({
+            where: { id: userId },
+            data: {
+                passwordResetCodeHash: null,
+                passwordResetCodeExpiresAt: null,
+                passwordResetCodeSentAt: null,
+            },
+        });
+    }
+
+    async updatePasswordHash(userId: string, passwordHash: string) {
+        return prisma.user.update({
+            where: { id: userId },
+            data: { passwordHash },
+        });
+    }
+
     async listCustomers() {
         return prisma.user.findMany({
             where: { role: UserRole.CUSTOMER },

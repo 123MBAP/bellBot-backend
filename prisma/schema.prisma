@@ -5,6 +5,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 enum UserRole {
@@ -14,9 +15,18 @@ enum UserRole {
 
 enum OrderStatus {
   ORDERED
+  RECEIVED
+  UNDER_REVIEW
+  PACKAGING
   PROCESSING
   SHIPPED
+  OUT_FOR_DELIVERY
   DELIVERED
+}
+
+enum SupportSenderRole {
+  CUSTOMER
+  ADMIN
 }
 
 model User {
@@ -26,9 +36,27 @@ model User {
   phone        String   @default("")
   passwordHash String
   role         UserRole @default(CUSTOMER)
+  passwordResetCodeHash      String?
+  passwordResetCodeExpiresAt DateTime?
+  passwordResetCodeSentAt    DateTime?
   orders       Order[]
+  supportMessages SupportMessage[]
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+model SupportMessage {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  senderRole SupportSenderRole @default(CUSTOMER)
+  adminId   String?
+  message   String
+  createdAt DateTime @default(now())
+  readAt    DateTime?
+
+  @@index([userId])
+  @@index([createdAt])
 }
 
 model Order {
@@ -36,12 +64,26 @@ model Order {
   userId         String
   user           User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   status         OrderStatus @default(ORDERED)
+
+  receivedAt       DateTime?
+  underReviewAt    DateTime?
+  packagingAt      DateTime?
+  outForDeliveryAt DateTime?
+  deliveredAt      DateTime?
+
+  packagingEtaMinutes Int?
+  deliveryEtaMinutes  Int?
+
+  transportMethod      String?
+  transportPlateNumber String?
+
   items          Json
   totalsByCurrency Json
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
 
   @@index([userId])
+  @@index([status])
 }
 
 model Product {
@@ -55,6 +97,7 @@ model Product {
   categoryRel   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   inStock       Boolean  @default(true)
   isNew         Boolean  @default(false)
+  productScroll Boolean  @default(false)
   discount      Int?
   sizes         String[]
   features      String[]

@@ -7,6 +7,7 @@ import { categoriesRouter } from './modules/categories/categories.routes.js';
 import { uploadsRouter } from './modules/uploads/uploads.routes.js';
 import { usersRouter } from './modules/users/users.routes.js';
 import { ordersRouter } from './modules/orders/orders.routes.js';
+import { supportRouter } from './modules/support/support.routes.js';
 
 export function createApp() {
     const app = express();
@@ -29,6 +30,7 @@ export function createApp() {
     app.use('/api/uploads', uploadsRouter);
     app.use('/api/users', usersRouter);
     app.use('/api/orders', ordersRouter);
+    app.use('/api/support', supportRouter);
 
     return app;
 }

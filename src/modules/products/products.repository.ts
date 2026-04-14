@@ -9,6 +9,7 @@ export type CreateProductInput = {
     categoryId?: string;
     inStock: boolean;
     isNew: boolean;
+    productScroll: boolean;
     discount?: number;
     sizes: string[];
     features: string[];

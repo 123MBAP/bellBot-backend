@@ -10,6 +10,7 @@ const baseProductSchema = z.object({
     categoryId: z.string().min(1).optional(),
     inStock: z.boolean().default(true),
     isNew: z.boolean().default(false),
+    productScroll: z.boolean().default(false),
     discount: z.number().int().min(1).max(90).optional(),
     sizes: z.array(z.string().min(1)).default(['Standard']),
     features: z.array(z.string().min(1)).default([]),

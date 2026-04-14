@@ -31,4 +31,28 @@ export class AuthController {
             return res.status(400).json({ ok: false, error: err?.message || 'Google auth failed' });
         }
     };
+
+    forgotPassword = async (req: Request, res: Response) => {
+        try {
+            const result = await this.authService.forgotPassword(req.body);
+            if (!result.ok) {
+                return res.status(500).json({ ok: false, error: result.error });
+            }
+            return res.json({ ok: true });
+        } catch (err: any) {
+            return res.status(400).json({ ok: false, error: err?.message || 'Invalid request' });
+        }
+    };
+
+    resetPassword = async (req: Request, res: Response) => {
+        try {
+            const result = await this.authService.resetPassword(req.body);
+            if (!result.ok) {
+                return res.status(400).json({ ok: false, error: result.error });
+            }
+            return res.json({ ok: true });
+        } catch (err: any) {
+            return res.status(400).json({ ok: false, error: err?.message || 'Invalid request' });
+        }
+    };
 }
