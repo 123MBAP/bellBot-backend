@@ -116,3 +116,44 @@ model Category {
   updatedAt DateTime  @updatedAt
   products  Product[]
 }
+
+enum AdvertMediaType {
+  IMAGE
+  VIDEO
+}
+
+model Advert {
+  id            String          @id @default(cuid())
+  title         String
+  productLink   String
+  mediaType     AdvertMediaType @default(IMAGE)
+  imageUrl      String?
+  imagePublicId String?
+  videoUrl      String?
+  isActive      Boolean         @default(true)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@index([isActive])
+  @@index([createdAt])
+}
+
+model ShowroomVideo {
+  id          String   @id @default(cuid())
+  title       String
+  productLink String
+  videoUrl    String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isActive])
+  @@index([createdAt])
+}
+
+model UiConfig {
+  id            Int      @id
+  showroomHidden Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
