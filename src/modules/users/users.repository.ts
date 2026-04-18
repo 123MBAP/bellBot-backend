@@ -10,6 +10,38 @@ export type CreateUserInput = {
 };
 
 export class UsersRepository {
+    async getById(userId: string) {
+        return prisma.user.findUnique({
+            where: { id: userId },
+            select: {
+                id: true,
+                email: true,
+                name: true,
+                phone: true,
+                role: true,
+                createdAt: true,
+            },
+        });
+    }
+
+    async updateProfile(userId: string, input: { name?: string; phone?: string }) {
+        return prisma.user.update({
+            where: { id: userId },
+            data: {
+                ...(typeof input.name === 'string' ? { name: input.name } : {}),
+                ...(typeof input.phone === 'string' ? { phone: input.phone } : {}),
+            },
+            select: {
+                id: true,
+                email: true,
+                name: true,
+                phone: true,
+                role: true,
+                createdAt: true,
+            },
+        });
+    }
+
     async findByEmail(email: string) {
         return prisma.user.findUnique({ where: { email } });
     }
